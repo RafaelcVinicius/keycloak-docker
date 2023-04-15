@@ -1,0 +1,52 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:13.5
+    container_name: keycloak.db
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ""
+      POSTGRES_DB: keycloak
+    ports:
+      - "5435:5432"
+    volumes:
+      - database:/var/lib/postgresql/data
+    networks:
+      - network
+  app:
+    image: quay.io/keycloak/keycloak:21.0.1
+    command: start-dev
+    container_name: keycloak.app
+    environment:
+      KC_DB_URL_HOST: postgres_keycloak_demo
+      DB_VENDOR: POSTGRES
+      DB_ADDR: db
+      DB_SCHEMA: public
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: ""
+      KC_HOSTNAME: auth.rafaelcoldebella.com.br
+      KC_HOSTNAME_ADMIN: keycloakadmin.rafaelcoldebella.com.br
+      KC_PROXY: edge
+      KC_HTTPS: "TRUE"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTPS_CERTIFICATE_FILE: /opt/keycloak/demo/certs/certificate.crt
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /opt/keycloak/demo/certs/private.key
+    ports:
+      - "85:8080"
+      - "445:8443"
+    volumes:
+      - /etc/letsencrypt/live/rafaelcoldebella.com.br/:/opt/keycloak/demo/certs
+    depends_on:
+      - db
+    networks:
+      - network
+volumes:
+  database:
+    driver: local
+networks:
+  network:
+    driver: bridge
