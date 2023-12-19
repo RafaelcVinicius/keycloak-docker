@@ -4,6 +4,7 @@ services:
   db:
     image: postgres:13.5
     container_name: keycloak.db
+    restart: unless-stopped
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_USER: ${DB_USERNAME}
@@ -21,6 +22,7 @@ services:
   app:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak.app
+    restart: unless-stopped
     command: start
     environment:
       KC_DB_VENDOR: POSTGRES
